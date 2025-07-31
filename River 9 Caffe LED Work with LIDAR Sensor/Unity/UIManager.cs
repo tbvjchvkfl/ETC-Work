@@ -11,10 +11,30 @@ public class UIManager : MonoBehaviour
     CameraController cameraController;
     List<GameObject> menuList = new List<GameObject>();
 
+    UIManager Instance;
 
     void Awake()
     {
         cameraController = Camera.main.GetComponent<CameraController>();
+
+        if (!Instance)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(Instance.gameObject);
+        }
+
+        if (SceneManager.sceneCount != 0)
+        {
+            MainMenuUI.SetActive(false);
+        }
+        else if(SceneManager.sceneCount == 0)
+        {
+            MainMenuUI.SetActive(true);
+        }
+        
         DontDestroyOnLoad(gameObject);
     }
 

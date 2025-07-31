@@ -26,7 +26,7 @@ public class TemaMenu : MonoBehaviour
     {
         for (int i = 0; i < MenuButtonList.Count; i++)
         {
-            MenuButtonList[i].GetComponent<MenuButton>().InitializeMenuButton(i);
+            MenuButtonList[i].GetComponent<MenuButton>().InitializeMenuButton();
             MenuButtonList[i].GetComponent<MenuButton>().OnMenuButtonClicked -= OnClickedMenuButton;
             MenuButtonList[i].GetComponent<MenuButton>().OnMenuButtonClicked += OnClickedMenuButton;
         }
