@@ -11,8 +11,8 @@ public class CameraController : MonoBehaviour
     public event MenuToggleDelegate OnMenuToggle;
 
     bool bIsControlActive = false;
-    /*float yawAxisValue = 0.0f;
-    float pitchAxisValue = 0.0f;*/
+    float yawAxisValue = 0.0f;
+    float pitchAxisValue = 0.0f;
     Vector3 movementDirection = Vector3.zero;
     Vector2 lookDirection = Vector2.zero;
 
@@ -25,9 +25,9 @@ public class CameraController : MonoBehaviour
     {
         if (bIsControlActive)
         {
-            transform.Translate(movementDirection * MoveSpeed * Time.deltaTime, Space.World);
+            transform.Translate(movementDirection * MoveSpeed * Time.deltaTime, Space.Self);
 
-            /*Vector3 InputRotation = new Vector3(lookDirection.y, lookDirection.x, 0.0f);
+            Vector3 InputRotation = new Vector3(lookDirection.y, lookDirection.x, 0.0f);
             
             yawAxisValue += InputRotation.y * LookSpeed;
             pitchAxisValue += InputRotation.x * LookSpeed;
@@ -36,7 +36,7 @@ public class CameraController : MonoBehaviour
 
             Vector3 cameraRotateDirection = new Vector3(pitchAxisValue, yawAxisValue, 0.0f);
 
-            transform.rotation = Quaternion.Euler(cameraRotateDirection);*/
+            transform.rotation = Quaternion.Euler(cameraRotateDirection);
         }
     }
 
