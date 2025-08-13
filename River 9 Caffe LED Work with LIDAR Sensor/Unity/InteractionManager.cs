@@ -19,13 +19,13 @@ public class InteractionManager : MonoBehaviour
         if (Input.mousePositionDelta.magnitude > 1.0f)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
+            RaycastHit[] hits = Physics.RaycastAll(ray);
+            foreach (RaycastHit hit in hits)
             {
                 if (hit.collider.gameObject.CompareTag("Interaction Object"))
                 {
                     hit.collider.gameObject.GetComponentInParent<SpawnObject>().InteractionObject(InteractionPower);
+                    break;
                 }
             }
         }

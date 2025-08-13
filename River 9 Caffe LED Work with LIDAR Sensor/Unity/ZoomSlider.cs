@@ -4,25 +4,35 @@ using UnityEngine.UI;
 public class ZoomSlider : MonoBehaviour
 {
     public GameObject ZoomSlider_Obj;
-    public GameObject MainCamera_Obj;
+    
+
+    Slider zoomSlider;
+    Camera MainCamera;
+
+    float prevCameraPos = 0.0f;
 
     public void InitializeZoomSlider()
     {
         if (ZoomSlider_Obj)
         {
-            Slider zoomSlider = ZoomSlider_Obj.GetComponent<Slider>();
-            zoomSlider.minValue = 10.0f;
-            zoomSlider.maxValue = 30.0f;
-            zoomSlider.value = 30.0f;
+            zoomSlider = ZoomSlider_Obj.GetComponent<Slider>();
+            zoomSlider.minValue = -20.0f;
+            zoomSlider.maxValue = 20.0f;
+            zoomSlider.value = 0.0f;
             zoomSlider.onValueChanged.AddListener(OnSliderValueChanged);
         }
+        MainCamera = Camera.main;
     }
 
     void OnSliderValueChanged(float value)
     {
-        if (MainCamera_Obj)
+        if (MainCamera)
         {
-            MainCamera_Obj.transform.position = new Vector3(MainCamera_Obj.transform.position.x, value, MainCamera_Obj.transform.position.z);
+            float delta = value - prevCameraPos;
+            Vector3 forwardDirection = MainCamera.transform.forward * delta;
+            Vector3 newPosition = MainCamera.transform.position + forwardDirection;
+            MainCamera.transform.position = newPosition;
+            prevCameraPos = value;
         }
     }
 }

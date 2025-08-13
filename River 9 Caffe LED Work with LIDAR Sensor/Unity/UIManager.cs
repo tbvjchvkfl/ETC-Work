@@ -6,36 +6,15 @@ public class UIManager : MonoBehaviour
 {
     public GameObject TemaMenuUI;
     public GameObject ZoomSliderUI;
+    public GameObject BoxSizeAdjustmentUI;
     public GameObject MainMenuUI;
 
     CameraController cameraController;
     List<GameObject> menuList = new List<GameObject>();
 
-    UIManager Instance;
-
     void Awake()
     {
         cameraController = Camera.main.GetComponent<CameraController>();
-
-        if (!Instance)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(Instance.gameObject);
-        }
-
-        if (SceneManager.sceneCount != 0)
-        {
-            MainMenuUI.SetActive(false);
-        }
-        else if(SceneManager.sceneCount == 0)
-        {
-            MainMenuUI.SetActive(true);
-        }
-        
-        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
@@ -52,6 +31,12 @@ public class UIManager : MonoBehaviour
             ZoomSliderUI.SetActive(false);
             menuList.Add(ZoomSliderUI);
         }
+        if (BoxSizeAdjustmentUI)
+        {
+            BoxSizeAdjustmentUI.GetComponent<BoxSizeAdjustment>().InitializeBoxSizeAdjustment();
+            BoxSizeAdjustmentUI.SetActive(false);
+            menuList.Add(BoxSizeAdjustmentUI);
+        }
         if (MainMenuUI)
         {
             MainMenuUI.GetComponent<MainMenu>().InitializeMainMenu();
@@ -61,15 +46,18 @@ public class UIManager : MonoBehaviour
 
     void ToggleUIMenuList()
     {
-        foreach (GameObject objects in menuList)
+        if (SceneManager.GetActiveScene().buildIndex != 0)
         {
-            if(objects.activeSelf)
+            foreach (GameObject objects in menuList)
             {
-                objects.SetActive(false);
-            }
-            else
-            {
-                objects.SetActive(true);
+                if (objects.activeSelf)
+                {
+                    objects.SetActive(false);
+                }
+                else
+                {
+                    objects.SetActive(true);
+                }
             }
         }
     }

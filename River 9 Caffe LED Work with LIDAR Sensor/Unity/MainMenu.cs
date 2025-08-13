@@ -72,7 +72,7 @@ public class MainMenu : MonoBehaviour
         BackButton_Obj.SetActive(false);
         sceneIndex = sceneNum;
         bIsEnabledTemaSelect = false;
-        EventSystem.current.SetSelectedGameObject(TemaSelectMenu_Obj);
+        EventSystem.current.SetSelectedGameObject(TemaSelectButton_Obj);
     }
 
     void OnCancledChangeTema()
@@ -81,6 +81,6 @@ public class MainMenu : MonoBehaviour
         animationController.SetBool("Clicked", false);
         TemaSelectMenu_Obj.SetActive(false);
         BackButton_Obj.SetActive(false);
-        EventSystem.current.SetSelectedGameObject(TemaSelectMenu_Obj);
+        EventSystem.current.SetSelectedGameObject(TemaSelectButton_Obj);
     }
 }

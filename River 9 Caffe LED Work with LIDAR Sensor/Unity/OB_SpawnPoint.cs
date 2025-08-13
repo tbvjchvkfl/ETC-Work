@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class SpawnObjectPool
 {
@@ -117,12 +116,3 @@ public class OB_SpawnPoint : MonoBehaviour
         return new Vector3(x, y, z);
     }
 }
-
-
-/*        while (!spawnObjectPool.CheckEmptyPool())
-        {
-            float RandomLocX = Random.Range(-30.0f, 30.0f);
-            float RandomLocZ = Random.Range(-12.0f, 12.0f);
-            spawnObjectPool.UsePool(new Vector3(SpawnArea.transform.position.x + RandomLocX, SpawnArea.transform.position.y, SpawnArea.transform.position.z + RandomLocZ));
-            yield return new WaitForSeconds(SpawnInterval);
-        }*/
