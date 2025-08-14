@@ -15,6 +15,7 @@ public class SpawnObjectPool
             for (int i = 0; i < PoolSize; i++)
             {
                 GameObject PoolObject = GameObject.Instantiate(SpawnObject, Parent.transform);
+                PoolObject.GetComponent<SpawnObject>().InitializeObject();
                 PoolObject.SetActive(false);
                 ObjPool.Add(PoolObject);
             }
@@ -29,6 +30,8 @@ public class SpawnObjectPool
             ObjPool.RemoveAt(ObjPool.Count - 1);
             PoolObject.SetActive(true);
             PoolObject.transform.position = SpawnLocation;
+            PoolObject.GetComponent<SpawnObject>().MemorizeSpawnLocation(SpawnLocation);
+            PoolObject.GetComponent<SpawnObject>().bIsInitializeSuccess = true;
             return PoolObject;
         }
         else
@@ -38,7 +41,7 @@ public class SpawnObjectPool
         }
     }
 
-    public void RetuanPool(GameObject ReturnObject)
+    public void ReturnPool(GameObject ReturnObject)
     {
         if (ReturnObject)
         {
@@ -68,7 +71,9 @@ public class OB_SpawnPoint : MonoBehaviour
 
     public float SpawnInterval = 1.0f;
 
-    SpawnObjectPool spawnObjectPool;
+    public SpawnObjectPool spawnObjectPool { get; private set; }
+
+    float aspectRatio = 9.0f / 16.0f;
 
     void Awake()
     {
@@ -77,6 +82,7 @@ public class OB_SpawnPoint : MonoBehaviour
         {
             spawnObjectPool.InitPool(SpawnObject, this.gameObject);
         }
+        NonSpawnArea.transform.localScale = new Vector3(NonSpawnArea.transform.localScale.x, NonSpawnArea.transform.localScale.x * aspectRatio, NonSpawnArea.transform.localScale.z);
     }
 
     void Start()
@@ -90,13 +96,14 @@ public class OB_SpawnPoint : MonoBehaviour
         {
             Vector3 spawnPos = Vector3.zero;
 
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 10; i++)
             {
-                spawnPos = GetRandomSpawnLocatiion(SpawnArea);
+                spawnPos = GetRandomSpawnLocation(SpawnArea);
 
                 if (!NonSpawnArea.bounds.Contains(spawnPos))
                 {
                     spawnObjectPool.UsePool(spawnPos);
+
                     break;
                 }
             }
@@ -104,14 +111,14 @@ public class OB_SpawnPoint : MonoBehaviour
         }
     }
 
-    Vector3 GetRandomSpawnLocatiion(BoxCollider SpawnArea)
+    Vector3 GetRandomSpawnLocation(BoxCollider SpawnBox)
     {
-        Vector3 center = SpawnArea.bounds.center;
-        Vector3 size = SpawnArea.bounds.size;
+        Vector3 center = SpawnBox.bounds.center;
+        Vector3 size = SpawnBox.bounds.size;
 
         float x = Random.Range(center.x - size.x / 2f, center.x + size.x / 2f);
-        float y = center.y;  // °íÁ¤ ³ôÀÌ, ÇÊ¿ä½Ã ·£´ý ³ôÀÌ·Î ¹Ù²ãµµ µÊ
-        float z = Random.Range(center.z - size.z / 2f, center.z + size.z / 2f);
+        float y = Random.Range(center.y - size.y / 2f, center.y + size.y / 2f);
+        float z = SpawnBox.transform.position.z;
 
         return new Vector3(x, y, z);
     }
