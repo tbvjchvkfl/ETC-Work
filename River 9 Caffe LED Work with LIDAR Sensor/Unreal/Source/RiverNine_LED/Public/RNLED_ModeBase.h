@@ -3,48 +3,37 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "SpawnObjectPool.generated.h"
+#include "GameFramework/GameModeBase.h"
+#include "RNLED_ModeBase.generated.h"
 
-class AAnimalBase;
-
+/**
+ * 
+ */
 UCLASS()
-class RIVERNINE_LED_API ASpawnObjectPool : public AActor
+class RIVERNINE_LED_API ARNLED_ModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
 public:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	bool bIsEnabledSpawn;
+
+
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	ASpawnObjectPool();
-	bool CheckObjectPool();
-	AAnimalBase* UsePoolObject(FVector SpawnLocation);
-	void ReturnPoolObject(AAnimalBase* ReturnObject);
+	ARNLED_ModeBase();
 
 private:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	UPROPERTY(EditAnywhere, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AAnimalBase> ObjectClass;
 
-	UPROPERTY(VisibleAnywhere, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	TArray<AAnimalBase*> ObjectPool;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	int PoolSize;
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
-	void InitializePool();
 };

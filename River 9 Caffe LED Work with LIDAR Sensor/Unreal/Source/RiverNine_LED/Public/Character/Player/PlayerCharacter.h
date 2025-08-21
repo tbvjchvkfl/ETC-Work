@@ -3,42 +3,43 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "SpawnObjectPool.generated.h"
+#include "GameFramework/Pawn.h"
+#include "PlayerCharacter.generated.h"
 
-class AAnimalBase;
+class UCameraComponent;
+class UFloatingPawnMovement;
+class UCapsuleComponent;
 
 UCLASS()
-class RIVERNINE_LED_API ASpawnObjectPool : public AActor
+class RIVERNINE_LED_API APlayerCharacter : public APawn
 {
 	GENERATED_BODY()
-	
+
 public:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	bool bIsEnabledSpawn;
+
+
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	ASpawnObjectPool();
-	bool CheckObjectPool();
-	AAnimalBase* UsePoolObject(FVector SpawnLocation);
-	void ReturnPoolObject(AAnimalBase* ReturnObject);
+	APlayerCharacter();
 
 private:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	UPROPERTY(EditAnywhere, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AAnimalBase> ObjectClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
+	UCapsuleComponent* CapsuleCollision;
 
-	UPROPERTY(VisibleAnywhere, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	TArray<AAnimalBase*> ObjectPool;
+	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
+	UCameraComponent* FollowCamera;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	int PoolSize;
+	UPROPERTY(VisibleAnywhere, Category = "Property | Essential Data")
+	UFloatingPawnMovement* MovementComponent;
+
 
 	//==============================================================
 	//=                          Function                          =
@@ -46,5 +47,5 @@ private:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	void InitializePool();
+
 };
