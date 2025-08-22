@@ -28,7 +28,6 @@ void APlayerCharacterController::BeginPlay()
 			SubSystem->AddMappingContext(DefaultContext, 0);
 		}
 	}
-	Load();
 }
 
 void APlayerCharacterController::SetupInputComponent()
@@ -87,6 +86,7 @@ void APlayerCharacterController::Load()
 		{
 			if (GetPawn())
 			{
+				SetControlRotation(SaveDataInstance->PlayerSaveInfo.PlayerRotation);
 				GetPawn()->SetActorLocation(SaveDataInstance->PlayerSaveInfo.PlayerLocation);
 				GetPawn()->SetActorRotation(SaveDataInstance->PlayerSaveInfo.PlayerRotation);
 			}
@@ -94,14 +94,7 @@ void APlayerCharacterController::Load()
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Load Fail!!!"));
 		return;
-	}
-	if (UGameplayStatics::DoesSaveGameExist(TEXT("PlayerSaveSlot"), 1))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Save file already exists! Loading..."));
-	}
-	else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("No save file found. Starting new game."));
 	}
 }

@@ -4,7 +4,6 @@
 // Framework
 #include "Level/LS_Ocean.h"
 #include "Character/Controller/PlayerCharacterController.h"
-#include "Character/Animals/AnimalBase.h"
 
 // Engine
 
@@ -40,9 +39,10 @@ void ALS_Ocean::MouseInteraction()
 		if (GetWorld()->LineTraceSingleByChannel(Hit, StartPoint, EndPoint, ECollisionChannel::ECC_Visibility, CollisionParams))
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Yellow, FString::Printf(TEXT("Interaction : %s"), *Hit.GetActor()->GetName()));
-			if (AAnimalBase* InteractionObject = Cast<AAnimalBase>(Hit.GetActor()))
+			if (APawn* InteractionObject = Cast<APawn>(Hit.GetActor()))
 			{
-				InteractionObject->ObjectInteraction();
+				GEngine->AddOnScreenDebugMessage(1, 10.0f, FColor::Blue, FString::Printf(TEXT("Animal Interaction : %s"), *InteractionObject->GetName()));
+				//InteractionObject->ObjectInteraction();
 			}
 		}
 	}

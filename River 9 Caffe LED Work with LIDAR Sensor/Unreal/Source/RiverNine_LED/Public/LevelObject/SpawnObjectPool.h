@@ -6,7 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "SpawnObjectPool.generated.h"
 
-class AAnimalBase;
 
 UCLASS()
 class RIVERNINE_LED_API ASpawnObjectPool : public AActor
@@ -24,18 +23,18 @@ public:
 	//==============================================================
 	ASpawnObjectPool();
 	bool CheckObjectPool();
-	AAnimalBase* UsePoolObject(FVector SpawnLocation);
-	void ReturnPoolObject(AAnimalBase* ReturnObject);
+	APawn* UsePoolObject(FVector SpawnLocation);
+	void ReturnPoolObject(APawn* ReturnObject);
 
 private:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
 	UPROPERTY(EditAnywhere, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AAnimalBase> ObjectClass;
+	TSubclassOf<APawn> ObjectClass;
 
 	UPROPERTY(VisibleAnywhere, Category = "Property", meta = (AllowPrivateAccess = "true"))
-	TArray<AAnimalBase*> ObjectPool;
+	TArray<APawn*> ObjectPool;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Property", meta = (AllowPrivateAccess = "true"))
 	int PoolSize;

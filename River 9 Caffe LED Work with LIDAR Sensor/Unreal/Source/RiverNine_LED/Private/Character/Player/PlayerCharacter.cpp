@@ -3,6 +3,7 @@
 
 // Framework
 #include "Character/Player/PlayerCharacter.h"
+#include "Character/Controller/PlayerCharacterController.h"
 
 // Engine
 #include "Camera/CameraComponent.h"
@@ -28,6 +29,10 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if(APlayerCharacterController* PCController = Cast<APlayerCharacterController>(GetController()))
+	{
+		PCController->Load();
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaTime)

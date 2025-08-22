@@ -2,7 +2,6 @@
 
 // Framework
 #include "LevelObject/SpawnObjectPool.h"
-#include "Character/Animals/AnimalBase.h"
 
 // Engine
 
@@ -30,7 +29,7 @@ void ASpawnObjectPool::InitializePool()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	for (int i = 0; i < PoolSize; i++)
 	{
-		if (AAnimalBase* SpawnObject = GetWorld()->SpawnActor<AAnimalBase>(ObjectClass, GetActorLocation(), GetActorRotation(), SpawnParams))
+		if (APawn* SpawnObject = GetWorld()->SpawnActor<APawn>(ObjectClass, GetActorLocation(), GetActorRotation(), SpawnParams))
 		{
 			SpawnObject->SetActorHiddenInGame(true);
 			ObjectPool.Add(SpawnObject);
@@ -44,11 +43,11 @@ void ASpawnObjectPool::InitializePool()
 	bIsEnabledSpawn = true;
 }
 
-AAnimalBase* ASpawnObjectPool::UsePoolObject(FVector SpawnLocation)
+APawn* ASpawnObjectPool::UsePoolObject(FVector SpawnLocation)
 {
 	if (ObjectPool.Num() > 0)
 	{
-		AAnimalBase* SpawnObject = ObjectPool[ObjectPool.Num() - 1];
+		APawn* SpawnObject = ObjectPool[ObjectPool.Num() - 1];
 		SpawnObject->SetActorHiddenInGame(false);
 		SpawnObject->SetActorEnableCollision(true);
 		SpawnObject->SetActorLocation(SpawnLocation);
@@ -62,7 +61,7 @@ AAnimalBase* ASpawnObjectPool::UsePoolObject(FVector SpawnLocation)
 	}
 }
 
-void ASpawnObjectPool::ReturnPoolObject(AAnimalBase* ReturnObject)
+void ASpawnObjectPool::ReturnPoolObject(APawn* ReturnObject)
 {
 	if (ReturnObject)
 	{

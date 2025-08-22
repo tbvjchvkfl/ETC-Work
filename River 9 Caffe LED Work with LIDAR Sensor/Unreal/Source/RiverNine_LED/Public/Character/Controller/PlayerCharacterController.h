@@ -29,6 +29,7 @@ public:
 	//=                          Function                          =
 	//==============================================================
 	APlayerCharacterController();
+	void Load();
 
 private:
 	//==============================================================
@@ -55,5 +56,5 @@ private:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Save();
-	void Load();
+	
 };
