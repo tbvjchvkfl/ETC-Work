@@ -16,6 +16,7 @@ APlayerCharacterController::APlayerCharacterController()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	LookingRotationValue = 1.0f;
+	bIsEnabledTurn = false;
 }
 
 void APlayerCharacterController::BeginPlay()
@@ -38,6 +39,8 @@ void APlayerCharacterController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::Look);
 		EnhancedInputComponent->BindAction(SaveAction, ETriggerEvent::Triggered, this, &APlayerCharacterController::Save);
+		EnhancedInputComponent->BindAction(TestAction, ETriggerEvent::Started, this, &APlayerCharacterController::EnabledTurnOnGoing);
+		EnhancedInputComponent->BindAction(TestAction, ETriggerEvent::Completed, this, &APlayerCharacterController::EnabledTurnComplete);
 	}
 }
 
@@ -58,10 +61,13 @@ void APlayerCharacterController::Move(const FInputActionValue& Value)
 
 void APlayerCharacterController::Look(const FInputActionValue& Value)
 {
-	const FVector2D LookDirection = Value.Get<FVector2D>();
-	
-	AddYawInput(LookDirection.X * LookingRotationValue * GetWorld()->GetDeltaSeconds());
-	AddPitchInput(LookDirection.Y * LookingRotationValue * GetWorld()->GetDeltaSeconds());
+	if (bIsEnabledTurn)
+	{
+		const FVector2D LookDirection = Value.Get<FVector2D>();
+
+		AddYawInput(LookDirection.X * LookingRotationValue * GetWorld()->GetDeltaSeconds());
+		AddPitchInput(LookDirection.Y * LookingRotationValue * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void APlayerCharacterController::Save()
@@ -76,6 +82,18 @@ void APlayerCharacterController::Save()
 			UGameplayStatics::SaveGameToSlot(SaveDataInstance, TEXT("PlayerSaveSlot"), 0);
 		}
 	}
+}
+
+void APlayerCharacterController::EnabledTurnOnGoing()
+{
+	bIsEnabledTurn = true;
+	SetShowMouseCursor(false);
+}
+
+void APlayerCharacterController::EnabledTurnComplete()
+{
+	bIsEnabledTurn = false;
+	SetShowMouseCursor(true);
 }
 
 void APlayerCharacterController::Load()

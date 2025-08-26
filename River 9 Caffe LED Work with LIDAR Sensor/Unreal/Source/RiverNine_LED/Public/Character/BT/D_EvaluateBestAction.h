@@ -3,11 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
-#include "AnimalController.generated.h"
+#include "BehaviorTree/Decorators/BTDecorator_BlackboardBase.h"
+#include "D_EvaluateBestAction.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class RIVERNINE_LED_API AAnimalController : public AAIController
+class RIVERNINE_LED_API UD_EvaluateBestAction : public UBTDecorator_BlackboardBase
 {
 	GENERATED_BODY()
 
@@ -15,29 +18,21 @@ public:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
-	UBehaviorTree* AnimalTree;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
-	UBlackboardComponent* AnimalBlackBoard;
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	AAnimalController();
+	UD_EvaluateBestAction();
 
-private:
+protected:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	
+
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-	virtual void OnPossess(APawn* InPawn) override;
-
-	void SetupBehaviorAndBlackboard();
+	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
 };

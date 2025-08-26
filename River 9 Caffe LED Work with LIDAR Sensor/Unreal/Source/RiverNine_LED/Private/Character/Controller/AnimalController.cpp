@@ -3,6 +3,7 @@
 
 // Framework
 #include "Character/Controller/AnimalController.h"
+#include "Character/Animals/AnimalBase.h"
 #include "Component/UtilityComponent.h"
 
 // Engine
@@ -45,13 +46,9 @@ void AAnimalController::SetupBehaviorAndBlackboard()
 			AnimalBlackBoard = BlackboardComp;
 
 			// Pawn의 유틸리티 컴포넌트에 블랙보드 주입
-			if (APawn* P = GetPawn())
+			if (AAnimalBase* Animal = Cast<AAnimalBase>(GetPawn()))
 			{
-				if (UUtilityComponent* Util = P->FindComponentByClass<UUtilityComponent>())
-				{
-					Util->BlackboardComp = AnimalBlackBoard;
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("AnimalController: Blackboard Component is set."));
-				}
+				Animal->GetUtilityManager()->BlackboardComp = AnimalBlackBoard;
 			}
 
 			RunBehaviorTree(AnimalTree);

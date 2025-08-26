@@ -3,41 +3,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
-#include "AnimalController.generated.h"
+#include "GameFramework/Actor.h"
+#include "MovementLimitVolume.generated.h"
+
+class UBoxComponent;
 
 UCLASS()
-class RIVERNINE_LED_API AAnimalController : public AAIController
+class RIVERNINE_LED_API AMovementLimitVolume : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
-	UBehaviorTree* AnimalTree;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
-	UBlackboardComponent* AnimalBlackBoard;
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	AAnimalController();
-
+	AMovementLimitVolume();
+	FVector GetRandomPointInVolume() const;
 private:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	
+	UPROPERTY(EditAnywhere, Category = "Property | Essential Data")
+	UBoxComponent* CollisionBox;
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-	virtual void OnPossess(APawn* InPawn) override;
 
-	void SetupBehaviorAndBlackboard();
 };

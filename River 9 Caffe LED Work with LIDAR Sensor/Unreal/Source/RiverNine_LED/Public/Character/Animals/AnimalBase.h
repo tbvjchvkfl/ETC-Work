@@ -6,11 +6,10 @@
 #include "GameFramework/Pawn.h"
 #include "AnimalBase.generated.h"
 
-class UFloatingPawnMovement;
-class USphereComponent;
 class USkeletalMeshComponent;
-class AAnimalController;
-class UAnimalAnimInstance;
+class USphereComponent;
+class UFloatingPawnMovement;
+class UUtilityComponent;
 
 UCLASS()
 class RIVERNINE_LED_API AAnimalBase : public APawn
@@ -23,43 +22,27 @@ public:
 	//==============================================================
 
 
-
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
 	AAnimalBase();
-	void ObjectInteraction();
+	FORCEINLINE UUtilityComponent* GetUtilityManager()const { return UtilityManager; }
 
 protected:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
+	UPROPERTY(EditDefaultsOnly, Category = "Property | Component", meta = (AllowPrivateAccess = "true"))
 	USphereComponent* SphereCollision;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Property | Essential Data")
-	USkeletalMeshComponent* MeshComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Property | Component", meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* PawnMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Property | Essential Data")
+	UPROPERTY(EditDefaultsOnly, Category = "Property | Component", meta = (AllowPrivateAccess = "true"))
 	UFloatingPawnMovement* MovementComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Base | Essential Data")
-	AAnimalController* OwningController;
-
-	UPROPERTY(VisibleAnywhere, Category = "Base | Essential Data")
-	UAnimalAnimInstance* OwningAnimInstance;
-
-	//==============================================================
-	//=                          Function                          =
-	//==============================================================
-	virtual void Interaction();
-
-private:
-	//==============================================================
-	//=                          Variable                          =
-	//==============================================================
-
-
+	UPROPERTY(EditDefaultsOnly, Category = "Property | Component", meta = (AllowPrivateAccess = "true"))
+	UUtilityComponent* UtilityManager;
 
 	//==============================================================
 	//=                          Function                          =

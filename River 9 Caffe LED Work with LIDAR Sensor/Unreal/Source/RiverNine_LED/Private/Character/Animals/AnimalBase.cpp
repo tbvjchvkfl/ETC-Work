@@ -3,47 +3,37 @@
 
 // Framework
 #include "Character/Animals/AnimalBase.h"
-#include "Character/Controller/AnimalController.h"
-#include "Character/Anim/AnimalAnimInstance.h"
+#include "Component/UtilityComponent.h"
 
 // Engine
 #include "Components/SphereComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
+
 
 AAnimalBase::AAnimalBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	AIControllerClass = AAnimalController::StaticClass();
-	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
+	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collision"));
 	RootComponent = SphereCollision;
 
-	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
-	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MeshComponent->SetupAttachment(RootComponent);
+	PawnMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Pawn Mesh"));
+	PawnMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	PawnMesh->SetupAttachment(RootComponent);
 
-	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("MovementComponent"));
+	MovementComponent = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("Movement Component"));
+	UtilityManager = CreateDefaultSubobject<UUtilityComponent>(TEXT("Utility Manager"));
 }
 
 void AAnimalBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	OwningController = Cast<AAnimalController>(GetController());
-	OwningAnimInstance = Cast<UAnimalAnimInstance>(MeshComponent->GetAnimInstance());
 }
 
 void AAnimalBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AAnimalBase::ObjectInteraction()
-{
-	Interaction();
-}
-
-void AAnimalBase::Interaction()
-{
 
 }
+

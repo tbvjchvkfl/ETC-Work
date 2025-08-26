@@ -11,7 +11,7 @@
 UUtilityComponent::UUtilityComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	ActionList.Empty();
+	AvailableActions.Empty();
 	BlackboardComp = nullptr;
 	SelectedActionKey = FName("SelectedAction");
 }
@@ -19,50 +19,34 @@ UUtilityComponent::UUtilityComponent()
 void UUtilityComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	AvailableActions.Add(NewObject<UUtilityMoveAction>(this));
+	AvailableActions.Add(NewObject<UUtilityFleeAction>(this));
 }
 
 void UUtilityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	EvaluateBestAction();
 }
 
 void UUtilityComponent::EvaluateBestAction()
 {
-	if (!BlackboardComp || ActionList.Num() == 0) return;
+	UUtilityActionBase* BestAction = nullptr;
+	float BestScore = -FLT_MAX;
 
-	float MaxScore = -FLT_MAX;
-	FString BestActionStr;
+	for (UUtilityActionBase* const &Action : AvailableActions)
+	{
+		float Score = 0.0f;
+		Score = Action->CalculateActionScore();
 
-	if (ActionList.IsEmpty())
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No actions available in UtilityComponent."));
-	}
-	else
-	{
-		for (auto& Action : ActionList)
+		if (Score > BestScore)
 		{
-			if (!Action.ActionInterface)
-			{
-				continue;
-			}
-			else
-			{
-				const float Score = Action.ActionInterface->CalculateActionScore(Action.ActionName);
-				const float FinalScore = Score + Action.BaseScore;
-
-				if (FinalScore > MaxScore)
-				{
-					MaxScore = FinalScore;
-					BestActionStr = Action.ActionName;
-				}
-			}
+			BestScore = Score;
+			BestAction = Action;
 		}
 	}
 
-	// Blackboard(Name)으로 기록
-	if (!BestActionStr.IsEmpty())
-	{
-		BlackboardComp->SetValueAsName(SelectedActionKey, FName(*BestActionStr));
-	}
+	//if (BlackboardComp && BestActionName != NAME_None)
+	//{
+	//	BlackboardComp->SetValueAsName(SelectedActionKey, BestActionName);
+	//}
 }

@@ -4,26 +4,45 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Character/Interface/UtilityInterface.h"
+#include "Character/Utility/UtilityActionBase.h"
 #include "UtilityComponent.generated.h"
 
 class UBlackboardComponent;
 
-USTRUCT()
-struct FUtilityAction
+UCLASS()
+class RIVERNINE_LED_API UUtilityMoveAction : public UUtilityActionBase
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere)
-	FString ActionName;
+	virtual float CalculateActionScore() override
+	{
+		return 0.0f;
+	}
 
-	UPROPERTY(EditAnywhere)
-	float BaseScore;
+	virtual void ExecuteAction() override
+	{
 
-	UPROPERTY(EditAnywhere)
-	TScriptInterface<IUtilityInterface> ActionInterface;
+	}
 };
+
+UCLASS()
+class RIVERNINE_LED_API UUtilityFleeAction : public UUtilityActionBase
+{
+	GENERATED_BODY()
+
+public:
+	virtual float CalculateActionScore() override
+	{
+		return 0.0f;
+	}
+
+	virtual void ExecuteAction() override
+	{
+
+	}
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RIVERNINE_LED_API UUtilityComponent : public UActorComponent
@@ -35,13 +54,11 @@ public:
 	//=                          Variable                          =
 	//==============================================================
 	UPROPERTY(EditAnywhere, Category = "Property|Utility")
-	TArray<FUtilityAction> ActionList;
+	TArray<UUtilityActionBase*> AvailableActions;
 
-	// 하이브리드 연결을 위해 추가
 	UPROPERTY(VisibleAnywhere, Category = "Property|Utility")
 	UBlackboardComponent* BlackboardComp;
 
-	// Blackboard에 기록할 Key (Name 타입 권장)
 	UPROPERTY(EditAnywhere, Category = "Property|Utility")
 	FName SelectedActionKey;
 
@@ -49,7 +66,6 @@ public:
 	//=                          Function                          =
 	//==============================================================
 	UUtilityComponent();
-	// 유틸리티 평가 (BT 서비스/틱 등에서 호출)
 	void EvaluateBestAction();
 private:
 	//==============================================================

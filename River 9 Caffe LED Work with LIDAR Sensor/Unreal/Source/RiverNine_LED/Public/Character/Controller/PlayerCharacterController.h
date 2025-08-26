@@ -25,6 +25,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Controller | Value")
 	float LookingRotationValue;
 
+	UPROPERTY(VisibleAnywhere, Category = "Controller | Value")
+	bool bIsEnabledTurn;
+
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
@@ -47,6 +50,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Controller | Input", meta = (AllowPrivateAccess = "true"))
 	UInputAction* SaveAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Controller | Input", meta = (AllowPrivateAccess = "true"))
+	UInputAction* TestAction;
+
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
@@ -56,5 +62,6 @@ private:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Save();
-	
+	void EnabledTurnOnGoing();
+	void EnabledTurnComplete();
 };
