@@ -23,24 +23,5 @@ bool UD_EvaluateBestAction::CalculateRawConditionValue(UBehaviorTreeComponent& O
         FishCharacter->GetUtilityManager()->EvaluateBestAction();
         ReturnValue = true;
     }
-    /*if (AAnimalController* AI = Cast<AAnimalController>(OwnerComp.GetAIOwner()))
-    {
-        if (UUtilityComponent* UtilityComp = AI->GetPawn()->FindComponentByClass<UUtilityComponent>())
-        {
-            FName BestAction = UtilityComp->EvaluateBestAction();
-            if (BestAction != NAME_None)
-            {
-                ReturnValue = true;
-            }
-        }
-        else
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("UtilityComponent is Null"));
-        }
-    }
-    else
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("False"));
-    }*/
     return ReturnValue;
 }

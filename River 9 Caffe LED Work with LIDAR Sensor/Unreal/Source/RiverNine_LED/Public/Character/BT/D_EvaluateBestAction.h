@@ -6,9 +6,8 @@
 #include "BehaviorTree/Decorators/BTDecorator_BlackboardBase.h"
 #include "D_EvaluateBestAction.generated.h"
 
-/**
- * 
- */
+class UUtilityActionBase;
+
 UCLASS()
 class RIVERNINE_LED_API UD_EvaluateBestAction : public UBTDecorator_BlackboardBase
 {
@@ -18,7 +17,6 @@ public:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-
 
 	//==============================================================
 	//=                          Function                          =

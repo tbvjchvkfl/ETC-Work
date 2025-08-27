@@ -16,6 +16,22 @@ class RIVERNINE_LED_API UUtilityActionBase : public UObject, public IUtilityInte
 	GENERATED_BODY()
 
 public:
+	//==============================================================
+	//=                          Variable                          =
+	//==============================================================
+	UPROPERTY()
+	FName ActionName;
+
+	UPROPERTY()
+	FVector TargetLocation;
+
+	UPROPERTY()
+	float BaseScore;
+	//==============================================================
+	//=                          Function                          =
+	//==============================================================
+	virtual void SetTargetLocation() override {}
 	virtual float CalculateActionScore() override { return 0.f; }
 	virtual void ExecuteAction() override {}
+	virtual bool CompleteAction() override { return false; }
 };

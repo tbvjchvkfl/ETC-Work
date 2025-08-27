@@ -10,6 +10,7 @@ class USkeletalMeshComponent;
 class USphereComponent;
 class UFloatingPawnMovement;
 class UUtilityComponent;
+class AMovementLimitVolume;
 
 UCLASS()
 class RIVERNINE_LED_API AAnimalBase : public APawn
@@ -20,14 +21,24 @@ public:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
+	UPROPERTY()
+	bool bIsInteraction;
 
+	UPROPERTY(EditAnywhere, Category = "Property | Value")
+	float MoveSpeed;
+
+	UPROPERTY(EditAnywhere, Category = "Property | Value")
+	float FleeSpeed;
 
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
 	AAnimalBase();
+	FORCEINLINE UFloatingPawnMovement* GetFloatingMovementComponent()const { return MovementComponent; }
 	FORCEINLINE UUtilityComponent* GetUtilityManager()const { return UtilityManager; }
+	FORCEINLINE AMovementLimitVolume* GetMovementLimitVolume() const { return MovementLimitVolume; }
 
+	void TriggerFleeAction();
 protected:
 	//==============================================================
 	//=                          Variable                          =
@@ -44,9 +55,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Property | Component", meta = (AllowPrivateAccess = "true"))
 	UUtilityComponent* UtilityManager;
 
+	UPROPERTY(EditAnywhere, Category = "Property | Component", meta = (AllowPrivateAccess = "true"))
+	AMovementLimitVolume* MovementLimitVolume;
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
 };

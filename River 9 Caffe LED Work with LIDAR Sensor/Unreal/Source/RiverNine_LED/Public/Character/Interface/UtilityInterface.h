@@ -22,9 +22,11 @@ class RIVERNINE_LED_API IUtilityInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void SetTargetLocation() = 0;
 	virtual float CalculateActionScore() = 0;
 	virtual void ExecuteAction() = 0;
-
+	virtual bool CompleteAction() = 0;
+	
 	/*UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Utility")
 	float CalculateActionScore(const FName& ActionName) const;
 

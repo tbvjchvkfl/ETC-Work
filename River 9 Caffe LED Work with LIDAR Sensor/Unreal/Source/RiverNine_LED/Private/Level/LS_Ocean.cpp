@@ -42,8 +42,7 @@ void ALS_Ocean::MouseInteraction()
 			if (AAnimalBase* InteractionObject = Cast<AAnimalBase>(Hit.GetActor()))
 			{
 				GEngine->AddOnScreenDebugMessage(1, 10.0f, FColor::Blue, TEXT("Interaction!!!!!"));
-				//InteractionObject->TemporaryFleeAction();
-				//InteractionObject->ObjectInteraction();
+				InteractionObject->TriggerFleeAction();
 			}
 		}
 	}
