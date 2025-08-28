@@ -29,6 +29,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Property | Value")
 	float FleeSpeed;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Property | Value")
+	int InteractionCount = 0;
 
 	//==============================================================
 	//=                          Function                          =
@@ -39,6 +42,7 @@ public:
 	FORCEINLINE AMovementLimitVolume* GetMovementLimitVolume() const { return MovementLimitVolume; }
 
 	void TriggerFleeAction();
+	FVector SetHideLocation();
 protected:
 	//==============================================================
 	//=                          Variable                          =
@@ -57,6 +61,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Property | Component", meta = (AllowPrivateAccess = "true"))
 	AMovementLimitVolume* MovementLimitVolume;
+
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
