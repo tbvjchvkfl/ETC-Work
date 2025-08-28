@@ -8,6 +8,7 @@
 
 class AAnimalBase;
 class UFloatingPawnMovement;
+class AHideObject;
 
 UCLASS()
 class RIVERNINE_LED_API UUtilityMoveAction : public UUtilityActionBase
@@ -51,6 +52,30 @@ public:
 	//=                          Function                          =
 	//==============================================================
 	void InitFleeAction();
+	virtual void SetTargetLocation() override;
+	virtual bool CompleteAction() override;
+	virtual float CalculateActionScore() override;
+	virtual void ExecuteAction() override;
+};
+
+UCLASS()
+class RIVERNINE_LED_API UUtilityHideAction : public UUtilityActionBase
+{
+	GENERATED_BODY()
+
+public:
+	//==============================================================
+	//=                          Variable                          =
+	//==============================================================
+	UPROPERTY()
+	AAnimalBase* Owner;
+
+	UPROPERTY()
+	UFloatingPawnMovement* MoveComp;
+	//==============================================================
+	//=                          Function                          =
+	//==============================================================
+	void InitHideAction();
 	virtual void SetTargetLocation() override;
 	virtual bool CompleteAction() override;
 	virtual float CalculateActionScore() override;
