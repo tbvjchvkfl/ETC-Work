@@ -6,6 +6,7 @@
 #include "Character/Animals/AnimalBase.h"
 #include "Component/UtilityComponent.h"
 #include "LevelObject/MovementLimitVolume.h"
+#include "Character/Anim/AnimalAnimInstance.h"
 
 // Engine
 #include "GameFramework/FloatingPawnMovement.h"
@@ -14,36 +15,36 @@
 
 // MoveAction
 
-void UUtilityMoveAction::InitMoveAction()
+void UUtilityMoveAction::InitAction(AAnimalBase* owner)
 {
-	if (UUtilityComponent* UtilityManager = Cast<UUtilityComponent>(GetOuter()))
+	Owner = owner;
+	if (Owner)
 	{
-		Owner = Cast<AAnimalBase>(UtilityManager->GetOwner());
-		if (Owner)
-		{
-			MoveComp = Owner->GetFloatingMovementComponent();
-		}
+		MoveComp = Owner->GetFloatingMovementComponent();
+		//TargetLocation = FVector::ZeroVector;
+		ActionName = FName(TEXT("Move Action"));
+		BaseScore = 0.1f;
 	}
-	TargetLocation = FVector::ZeroVector;
-	ActionName = FName(TEXT("Move Action"));
-	BaseScore = 0.1f;
 }
 
 void UUtilityMoveAction::SetTargetLocation()
 {
-	if (AMovementLimitVolume* MovementVolume = Owner->GetMovementLimitVolume())
+	if (Owner)
 	{
-		TargetLocation = MovementVolume->GetRandomPointInVolume();
-	}
-	else
-	{
-		TargetLocation = FVector::ZeroVector;
+		if (AMovementLimitVolume* MovementVolume = Owner->GetMovementLimitVolume())
+		{
+			Owner->TargetLocation = MovementVolume->GetRandomPointInVolume();
+		}
+		else
+		{
+			Owner->TargetLocation = FVector::ZeroVector;
+		}
 	}
 }
 
 bool UUtilityMoveAction::CompleteAction()
 {
-	if (FVector::Dist(Owner->GetActorLocation(), TargetLocation) <= 100.0f)
+	if (FVector::Dist(Owner->GetActorLocation(), Owner->TargetLocation) <= 100.0f)
 	{
 		return true;
 	}
@@ -57,11 +58,42 @@ float UUtilityMoveAction::CalculateActionScore()
 
 void UUtilityMoveAction::ExecuteAction()
 {
-	if (TargetLocation != FVector::ZeroVector)
+	if (!Owner || Owner->TargetLocation == FVector::ZeroVector) return;
+
+	FVector DesiredDir = (Owner->TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
+	FVector TargetVelocity = DesiredDir * Owner->MaxMoveSpeed;
+
+	FVector VelocityDiff = TargetVelocity - Owner->CurrentVelocity;
+
+	float AccelRate = (FVector::DotProduct(VelocityDiff, DesiredDir) > 0) ? Owner->Acceleration	: Owner->Deceleration;
+
+	FVector AccelStep = VelocityDiff.GetClampedToMaxSize(AccelRate * GetWorld()->GetDeltaSeconds());
+
+	Owner->CurrentVelocity += AccelStep;
+	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
+
+
+
+	//if (Owner && Owner->TargetLocation != FVector::ZeroVector)
+	//{
+	//	if (Owner->CurrentVelocity.IsNearlyZero())
+	//	{
+	//		Owner->CurrentVelocity = FVector::ZeroVector;
+	//	}
+
+	//	FVector DesiredDir = (Owner->TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
+	//	FVector DesiredVelocity = DesiredDir * Owner->MoveSpeed * 100.f; // 속도 스케일
+
+	//	Owner->CurrentVelocity = FMath::VInterpTo(Owner->CurrentVelocity, DesiredVelocity, GetWorld()->GetDeltaSeconds(), 0.8f);
+
+	//	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
+	//}
+
+	/*if (TargetLocation != FVector::ZeroVector)
 	{
 		FVector MoveDirection = (TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
-		MoveComp->MaxSpeed = 200.0f;
-		MoveComp->AddInputVector(MoveDirection * Owner->MoveSpeed);
+		MoveComp->MaxSpeed = 1200.0f;
+		MoveComp->AddInputVector(MoveDirection * Owner->FleeSpeed);
 
 		if (!MoveDirection.IsNearlyZero())
 		{
@@ -69,6 +101,18 @@ void UUtilityMoveAction::ExecuteAction()
 			MoveRotation.Roll = Owner->GetActorRotation().Roll;
 			Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), MoveRotation, GetWorld()->GetDeltaSeconds(), 2.0f));
 		}
+	}*/
+
+	if (!Owner->CurrentVelocity.IsNearlyZero())
+	{
+		FRotator DesiredRot = Owner->CurrentVelocity.Rotation();
+		DesiredRot.Roll = Owner->GetActorRotation().Roll;
+		Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), DesiredRot, GetWorld()->GetDeltaSeconds(), 30.0f));
+	}
+
+	if (UAnimalAnimInstance* AnimInst = Cast<UAnimalAnimInstance>(Owner->GetPawnMesh()->GetAnimInstance()))
+	{
+		AnimInst->Velocity = Owner->CurrentVelocity;
 	}
 }
 
@@ -78,36 +122,33 @@ void UUtilityMoveAction::ExecuteAction()
 
 // Flee Action
 
-void UUtilityFleeAction::InitFleeAction()
+void UUtilityFleeAction::InitAction(AAnimalBase* owner)
 {
-	if (UUtilityComponent* UtilityManager = Cast<UUtilityComponent>(GetOuter()))
+	Owner = owner;
+	if (Owner)
 	{
-		Owner = Cast<AAnimalBase>(UtilityManager->GetOwner());
-		if (Owner)
-		{
-			MoveComp = Owner->GetFloatingMovementComponent();
-		}
+		MoveComp = Owner->GetFloatingMovementComponent();
+		//TargetLocation = FVector::ZeroVector;
+		ActionName = FName(TEXT("Flee Action"));
+		BaseScore = 0.0f;
 	}
-	TargetLocation = FVector::ZeroVector;
-	ActionName = FName(TEXT("Flee Action"));
-	BaseScore = 0.0f;
 }
 
 void UUtilityFleeAction::SetTargetLocation()
 {
 	if (AMovementLimitVolume* MovementVolume = Owner->GetMovementLimitVolume())
 	{
-		TargetLocation = MovementVolume->GetRandomPointInVolume();
+		Owner->TargetLocation = MovementVolume->GetRandomPointInVolume();
 	}
 	else
 	{
-		TargetLocation = FVector::ZeroVector;
+		Owner->TargetLocation = FVector::ZeroVector;
 	}
 }
 
 bool UUtilityFleeAction::CompleteAction()
 {
-	if (FVector::Dist(Owner->GetActorLocation(), TargetLocation) <= 100.0f)
+	if (FVector::Dist(Owner->GetActorLocation(), Owner->TargetLocation) <= 100.0f)
 	{
 		if (UUtilityComponent* UtilityManager = Cast<UUtilityComponent>(GetOuter()))
 		{
@@ -134,7 +175,27 @@ float UUtilityFleeAction::CalculateActionScore()
 
 void UUtilityFleeAction::ExecuteAction()
 {
-	if (TargetLocation != FVector::ZeroVector)
+	if (!Owner || Owner->TargetLocation == FVector::ZeroVector) return;
+
+	FVector DesiredDir = (Owner->TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
+	FVector DesiredVelocity = DesiredDir * Owner->MoveSpeed * 500.f; // 속도 스케일
+
+	Owner->CurrentVelocity = FMath::VInterpTo(Owner->CurrentVelocity, DesiredVelocity, GetWorld()->GetDeltaSeconds(), 0.8f);
+
+	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
+
+	if (!Owner->CurrentVelocity.IsNearlyZero())
+	{
+		FRotator DesiredRot = Owner->CurrentVelocity.Rotation();
+		DesiredRot.Roll = Owner->GetActorRotation().Roll;
+		Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), DesiredRot, GetWorld()->GetDeltaSeconds(), 1.5f));
+	}
+
+	if (UAnimalAnimInstance* AnimInst = Cast<UAnimalAnimInstance>(Owner->GetPawnMesh()->GetAnimInstance()))
+	{
+		AnimInst->Velocity = Owner->CurrentVelocity;
+	}
+	/*if (TargetLocation != FVector::ZeroVector)
 	{
 		FVector MoveDirection = (TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
 		MoveComp->MaxSpeed = 1200.0f;
@@ -146,43 +207,40 @@ void UUtilityFleeAction::ExecuteAction()
 			MoveRotation.Roll = Owner->GetActorRotation().Roll;
 			Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), MoveRotation, GetWorld()->GetDeltaSeconds(), 2.0f));
 		}
-	}
+	}*/
 }
 
 
 
 // Hide Action
 
-void UUtilityHideAction::InitHideAction()
+void UUtilityHideAction::InitAction(AAnimalBase* owner)
 {
-	if (UUtilityComponent* UtilityManager = Cast<UUtilityComponent>(GetOuter()))
+	Owner = owner;
+	if (Owner)
 	{
-		Owner = Cast<AAnimalBase>(UtilityManager->GetOwner());
-		if (Owner)
-		{
-			MoveComp = Owner->GetFloatingMovementComponent();
-		}
+		MoveComp = Owner->GetFloatingMovementComponent();
+		Owner->TargetLocation = FVector::ZeroVector;
+		ActionName = FName(TEXT("Hide Action"));
+		BaseScore = 0.0f;
 	}
-	TargetLocation = FVector::ZeroVector;
-	ActionName = FName(TEXT("Hide Action"));
-	BaseScore = 0.0f;
 }
 
 void UUtilityHideAction::SetTargetLocation()
 {
 	if (Owner)
 	{
-		TargetLocation = Owner->SetHideLocation();
+		Owner->TargetLocation = Owner->SetHideLocation();
 	}
 	else
 	{
-		TargetLocation = FVector::ZeroVector;
+		Owner->TargetLocation = FVector::ZeroVector;
 	}
 }
 
 bool UUtilityHideAction::CompleteAction()
 {
-	if (FVector::Dist(Owner->GetActorLocation(), TargetLocation) <= 100.0f)
+	if (FVector::Dist(Owner->GetActorLocation(), Owner->TargetLocation) <= 100.0f)
 	{
 		Owner->InteractionCount++;
 		return true;
@@ -205,17 +263,24 @@ float UUtilityHideAction::CalculateActionScore()
 
 void UUtilityHideAction::ExecuteAction()
 {
-	if (TargetLocation != FVector::ZeroVector)
-	{
-		FVector MoveDirection = (TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
-		MoveComp->MaxSpeed = 1200.0f;
-		MoveComp->AddInputVector(MoveDirection * Owner->FleeSpeed);
+	if (!Owner || Owner->TargetLocation == FVector::ZeroVector) return;
 
-		if (!MoveDirection.IsNearlyZero())
-		{
-			FRotator MoveRotation = MoveDirection.Rotation();
-			MoveRotation.Roll = Owner->GetActorRotation().Roll;
-			Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), MoveRotation, GetWorld()->GetDeltaSeconds(), 2.0f));
-		}
+	FVector DesiredDir = (Owner->TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
+	FVector DesiredVelocity = DesiredDir * Owner->MoveSpeed * 500.f; // 속도 스케일
+
+	Owner->CurrentVelocity = FMath::VInterpTo(Owner->CurrentVelocity, DesiredVelocity, GetWorld()->GetDeltaSeconds(), 0.8f);
+
+	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
+
+	if (!Owner->CurrentVelocity.IsNearlyZero())
+	{
+		FRotator DesiredRot = Owner->CurrentVelocity.Rotation();
+		DesiredRot.Roll = Owner->GetActorRotation().Roll;
+		Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), DesiredRot, GetWorld()->GetDeltaSeconds(), 1.5f));
+	}
+
+	if (UAnimalAnimInstance* AnimInst = Cast<UAnimalAnimInstance>(Owner->GetPawnMesh()->GetAnimInstance()))
+	{
+		AnimInst->Velocity = Owner->CurrentVelocity;
 	}
 }
