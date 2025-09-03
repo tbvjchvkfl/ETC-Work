@@ -8,7 +8,7 @@
 #include "UtilityActionBase.generated.h"
 
 
-
+class AAnimalBase;
 
 UCLASS(Abstract)
 class RIVERNINE_LED_API UUtilityActionBase : public UObject, public IUtilityInterface
@@ -22,14 +22,14 @@ public:
 	UPROPERTY()
 	FName ActionName;
 
-	UPROPERTY()
-	FVector TargetLocation;
+	
 
 	UPROPERTY()
 	float BaseScore;
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
+	virtual void InitAction(AAnimalBase* owner) override{}
 	virtual void SetTargetLocation() override {}
 	virtual float CalculateActionScore() override { return 0.f; }
 	virtual void ExecuteAction() override {}

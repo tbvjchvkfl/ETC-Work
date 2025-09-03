@@ -22,7 +22,7 @@ void ALS_Ocean::BeginPlay()
 void ALS_Ocean::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	MouseInteraction();
+	//MouseInteraction();
 }
 
 void ALS_Ocean::MouseInteraction()

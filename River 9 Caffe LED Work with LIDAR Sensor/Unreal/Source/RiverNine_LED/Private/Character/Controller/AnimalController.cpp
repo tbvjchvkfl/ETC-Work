@@ -45,13 +45,32 @@ void AAnimalController::SetupBehaviorAndBlackboard()
 		{
 			AnimalBlackBoard = BlackboardComp;
 
-			// Pawn의 유틸리티 컴포넌트에 블랙보드 주입
-			if (AAnimalBase* Animal = Cast<AAnimalBase>(GetPawn()))
-			{
-				Animal->GetUtilityManager()->BlackboardComp = AnimalBlackBoard;
-			}
+			//// Pawn의 유틸리티 컴포넌트에 블랙보드 주입
+			//if (AAnimalBase* Animal = Cast<AAnimalBase>(GetPawn()))
+			//{
+			//	Animal->GetUtilityManager()->BlackboardComp = AnimalBlackBoard;
+			//}
 
 			RunBehaviorTree(AnimalTree);
 		}
 	}
+
+	//if (AnimalTree)
+	//{
+	//	// Controller별 BlackboardComponent 새로 생성
+	//	AnimalBlackBoard = NewObject<UBlackboardComponent>(this, TEXT("BlackboardComponent"));
+	//	AnimalBlackBoard->InitializeBlackboard(*AnimalTree->BlackboardAsset);
+
+	//	// Behavior Tree 실행
+	//	RunBehaviorTree(AnimalTree);
+
+	//	// Pawn의 UtilityComponent에 블랙보드 연결
+	//	if (AAnimalBase* Animal = Cast<AAnimalBase>(GetPawn()))
+	//	{
+	//		if (Animal->GetUtilityManager())
+	//		{
+	//			Animal->GetUtilityManager()->BlackboardComp = AnimalBlackBoard;
+	//		}
+	//	}
+	//}
 }

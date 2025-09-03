@@ -15,6 +15,7 @@
 APlayerCharacterController::APlayerCharacterController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bShowMouseCursor = true;
 	bEnableMouseOverEvents = true;
 	LookingRotationValue = 1.0f;
 	bIsEnabledTurn = false;

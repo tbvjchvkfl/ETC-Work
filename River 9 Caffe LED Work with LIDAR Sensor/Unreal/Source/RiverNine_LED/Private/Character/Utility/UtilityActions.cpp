@@ -21,7 +21,6 @@ void UUtilityMoveAction::InitAction(AAnimalBase* owner)
 	if (Owner)
 	{
 		MoveComp = Owner->GetFloatingMovementComponent();
-		//TargetLocation = FVector::ZeroVector;
 		ActionName = FName(TEXT("Move Action"));
 		BaseScore = 0.1f;
 	}
@@ -65,43 +64,12 @@ void UUtilityMoveAction::ExecuteAction()
 
 	FVector VelocityDiff = TargetVelocity - Owner->CurrentVelocity;
 
-	float AccelRate = (FVector::DotProduct(VelocityDiff, DesiredDir) > 0) ? Owner->Acceleration	: Owner->Deceleration;
+	float AccelRate = (FVector::DotProduct(VelocityDiff, DesiredDir) > 0) ? Owner->MoveAcceleration	: Owner->Deceleration;
 
 	FVector AccelStep = VelocityDiff.GetClampedToMaxSize(AccelRate * GetWorld()->GetDeltaSeconds());
 
 	Owner->CurrentVelocity += AccelStep;
 	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
-
-
-
-	//if (Owner && Owner->TargetLocation != FVector::ZeroVector)
-	//{
-	//	if (Owner->CurrentVelocity.IsNearlyZero())
-	//	{
-	//		Owner->CurrentVelocity = FVector::ZeroVector;
-	//	}
-
-	//	FVector DesiredDir = (Owner->TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
-	//	FVector DesiredVelocity = DesiredDir * Owner->MoveSpeed * 100.f; // 속도 스케일
-
-	//	Owner->CurrentVelocity = FMath::VInterpTo(Owner->CurrentVelocity, DesiredVelocity, GetWorld()->GetDeltaSeconds(), 0.8f);
-
-	//	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
-	//}
-
-	/*if (TargetLocation != FVector::ZeroVector)
-	{
-		FVector MoveDirection = (TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
-		MoveComp->MaxSpeed = 1200.0f;
-		MoveComp->AddInputVector(MoveDirection * Owner->FleeSpeed);
-
-		if (!MoveDirection.IsNearlyZero())
-		{
-			FRotator MoveRotation = MoveDirection.Rotation();
-			MoveRotation.Roll = Owner->GetActorRotation().Roll;
-			Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), MoveRotation, GetWorld()->GetDeltaSeconds(), 2.0f));
-		}
-	}*/
 
 	if (!Owner->CurrentVelocity.IsNearlyZero())
 	{
@@ -128,7 +96,6 @@ void UUtilityFleeAction::InitAction(AAnimalBase* owner)
 	if (Owner)
 	{
 		MoveComp = Owner->GetFloatingMovementComponent();
-		//TargetLocation = FVector::ZeroVector;
 		ActionName = FName(TEXT("Flee Action"));
 		BaseScore = 0.0f;
 	}
@@ -136,13 +103,16 @@ void UUtilityFleeAction::InitAction(AAnimalBase* owner)
 
 void UUtilityFleeAction::SetTargetLocation()
 {
-	if (AMovementLimitVolume* MovementVolume = Owner->GetMovementLimitVolume())
+	if (Owner)
 	{
-		Owner->TargetLocation = MovementVolume->GetRandomPointInVolume();
-	}
-	else
-	{
-		Owner->TargetLocation = FVector::ZeroVector;
+		if (AMovementLimitVolume* MovementVolume = Owner->GetMovementLimitVolume())
+		{
+			Owner->TargetLocation = MovementVolume->GetRandomPointInVolume();
+		}
+		else
+		{
+			Owner->TargetLocation = FVector::ZeroVector;
+		}
 	}
 }
 
@@ -150,10 +120,7 @@ bool UUtilityFleeAction::CompleteAction()
 {
 	if (FVector::Dist(Owner->GetActorLocation(), Owner->TargetLocation) <= 100.0f)
 	{
-		if (UUtilityComponent* UtilityManager = Cast<UUtilityComponent>(GetOuter()))
-		{
-			Owner->bIsInteraction = false;
-		}
+		Owner->bIsInteraction = false;
 		return true;
 	}
 	return false;
@@ -178,36 +145,28 @@ void UUtilityFleeAction::ExecuteAction()
 	if (!Owner || Owner->TargetLocation == FVector::ZeroVector) return;
 
 	FVector DesiredDir = (Owner->TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
-	FVector DesiredVelocity = DesiredDir * Owner->MoveSpeed * 500.f; // 속도 스케일
+	FVector TargetVelocity = DesiredDir * Owner->MaxFleeSpeed;
 
-	Owner->CurrentVelocity = FMath::VInterpTo(Owner->CurrentVelocity, DesiredVelocity, GetWorld()->GetDeltaSeconds(), 0.8f);
+	FVector VelocityDiff = TargetVelocity - Owner->CurrentVelocity;
 
+	float AccelRate = (FVector::DotProduct(VelocityDiff, DesiredDir) > 0) ? Owner->FleeAcceleration : Owner->Deceleration;
+
+	FVector AccelStep = VelocityDiff.GetClampedToMaxSize(AccelRate * GetWorld()->GetDeltaSeconds());
+
+	Owner->CurrentVelocity += AccelStep;
 	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
 
 	if (!Owner->CurrentVelocity.IsNearlyZero())
 	{
 		FRotator DesiredRot = Owner->CurrentVelocity.Rotation();
 		DesiredRot.Roll = Owner->GetActorRotation().Roll;
-		Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), DesiredRot, GetWorld()->GetDeltaSeconds(), 1.5f));
+		Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), DesiredRot, GetWorld()->GetDeltaSeconds(), 50.0f));
 	}
 
 	if (UAnimalAnimInstance* AnimInst = Cast<UAnimalAnimInstance>(Owner->GetPawnMesh()->GetAnimInstance()))
 	{
 		AnimInst->Velocity = Owner->CurrentVelocity;
 	}
-	/*if (TargetLocation != FVector::ZeroVector)
-	{
-		FVector MoveDirection = (TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
-		MoveComp->MaxSpeed = 1200.0f;
-		MoveComp->AddInputVector(MoveDirection * Owner->FleeSpeed);
-
-		if (!MoveDirection.IsNearlyZero())
-		{
-			FRotator MoveRotation = MoveDirection.Rotation();
-			MoveRotation.Roll = Owner->GetActorRotation().Roll;
-			Owner->SetActorRotation(FMath::RInterpTo(Owner->GetActorRotation(), MoveRotation, GetWorld()->GetDeltaSeconds(), 2.0f));
-		}
-	}*/
 }
 
 
@@ -242,7 +201,7 @@ bool UUtilityHideAction::CompleteAction()
 {
 	if (FVector::Dist(Owner->GetActorLocation(), Owner->TargetLocation) <= 100.0f)
 	{
-		Owner->InteractionCount++;
+		Owner->bIsInteraction = false;
 		return true;
 	}
 	return false;
@@ -266,10 +225,15 @@ void UUtilityHideAction::ExecuteAction()
 	if (!Owner || Owner->TargetLocation == FVector::ZeroVector) return;
 
 	FVector DesiredDir = (Owner->TargetLocation - Owner->GetActorLocation()).GetSafeNormal();
-	FVector DesiredVelocity = DesiredDir * Owner->MoveSpeed * 500.f; // 속도 스케일
+	FVector TargetVelocity = DesiredDir * Owner->MaxFleeSpeed;
 
-	Owner->CurrentVelocity = FMath::VInterpTo(Owner->CurrentVelocity, DesiredVelocity, GetWorld()->GetDeltaSeconds(), 0.8f);
+	FVector VelocityDiff = TargetVelocity - Owner->CurrentVelocity;
 
+	float AccelRate = (FVector::DotProduct(VelocityDiff, DesiredDir) > 0) ? Owner->FleeAcceleration : Owner->Deceleration;
+
+	FVector AccelStep = VelocityDiff.GetClampedToMaxSize(AccelRate * GetWorld()->GetDeltaSeconds());
+
+	Owner->CurrentVelocity += AccelStep;
 	Owner->AddActorWorldOffset(Owner->CurrentVelocity * GetWorld()->GetDeltaSeconds(), true);
 
 	if (!Owner->CurrentVelocity.IsNearlyZero())

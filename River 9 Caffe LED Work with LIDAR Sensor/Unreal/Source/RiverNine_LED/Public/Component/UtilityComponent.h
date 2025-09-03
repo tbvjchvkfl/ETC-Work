@@ -8,6 +8,7 @@
 
 class UBlackboardComponent;
 class UUtilityActionBase;
+class AAnimalBase;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RIVERNINE_LED_API UUtilityComponent : public UActorComponent
@@ -24,17 +25,20 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Property|Utility")
 	UBlackboardComponent* BlackboardComp;
 
+	UPROPERTY(VisibleAnywhere, Category = "Property|Utility")
+	AAnimalBase* Owner;
+
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
 	UUtilityComponent();
-	UUtilityActionBase* EvaluateBestAction();
+	//UUtilityActionBase* EvaluateBestAction();
+	FName EvaluateBestAction();
 	void ForceExecuteAction(UUtilityActionBase* ActionBase);
 private:
 	//==============================================================
 	//=                          Variable                          =
 	//==============================================================
-
 
 	//==============================================================
 	//=                          Function                          =

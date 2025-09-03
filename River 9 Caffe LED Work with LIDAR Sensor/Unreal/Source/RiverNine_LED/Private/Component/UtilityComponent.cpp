@@ -3,6 +3,7 @@
 
 // Framework
 #include "Component/UtilityComponent.h"
+#include "Character/Animals/AnimalBase.h"
 #include "Character/Controller/AnimalController.h"
 #include "Character/Utility/UtilityActions.h"
 
@@ -19,13 +20,24 @@ UUtilityComponent::UUtilityComponent()
 void UUtilityComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	UUtilityMoveAction* MoveAction = NewObject<UUtilityMoveAction>(this);
-	MoveAction->InitMoveAction();
-	AvailableActions.Add(MoveAction);
 
-	UUtilityFleeAction* FleeAction = NewObject<UUtilityFleeAction>(this);
-	FleeAction->InitFleeAction();
-	AvailableActions.Add(FleeAction);
+	Owner = Cast<AAnimalBase>(GetOwner());
+	if (Owner)
+	{
+		AvailableActions.Add(NewObject<UUtilityMoveAction>(Owner));
+		AvailableActions.Add(NewObject<UUtilityFleeAction>(Owner));
+		AvailableActions.Add(NewObject<UUtilityHideAction>(Owner));
+
+		for (auto& Action : AvailableActions)
+		{
+			Action->InitAction(Owner);
+		}
+
+		if (AAnimalController* AnimalCont = Cast<AAnimalController>(Owner->GetController()))
+		{
+			BlackboardComp = AnimalCont->AnimalBlackBoard;
+		}
+	}
 }
 
 void UUtilityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -33,27 +45,26 @@ void UUtilityComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-UUtilityActionBase* UUtilityComponent::EvaluateBestAction()
+FName UUtilityComponent::EvaluateBestAction()
 {
-	UUtilityActionBase* BestAction = nullptr;
+	FName BestAction;
 	float BestScore = -FLT_MAX;
-
+	
 	for (UUtilityActionBase* const &Action : AvailableActions)
 	{
 		float Score = 0.0f;
 		Score = Action->CalculateActionScore();
-
+	
 		if (Score > BestScore)
 		{
 			BestScore = Score;
-			BestAction = Action;
+			BestAction = Action->ActionName;
 		}
 	}
-
-	if (BlackboardComp && BestAction)
+	
+	if (BlackboardComp && !BestAction.IsNone())
 	{
-		BlackboardComp->SetValueAsName("Selected Action Name", BestAction->ActionName);
-		BlackboardComp->SetValueAsObject("Selected Action", BestAction);
+		BlackboardComp->SetValueAsName("Selected Action Name", BestAction);
 	}
 	return BestAction;
 }
@@ -64,6 +75,5 @@ void UUtilityComponent::ForceExecuteAction(UUtilityActionBase* ActionBase)
 	{
 		BlackboardComp->SetValueAsBool("Check Interaction", true);
 		BlackboardComp->SetValueAsName("Selected Action Name", ActionBase->ActionName);
-		BlackboardComp->SetValueAsObject("Selected Action", ActionBase);
 	}
 }

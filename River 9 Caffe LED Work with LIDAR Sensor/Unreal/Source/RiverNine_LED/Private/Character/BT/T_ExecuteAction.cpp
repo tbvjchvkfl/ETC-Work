@@ -6,6 +6,7 @@
 #include "Character/Controller/AnimalController.h"
 #include "Character/Utility/UtilityActionBase.h"
 #include "Character/Animals/AnimalBase.h"
+#include "Component/UtilityComponent.h"
 
 // Engine
 #include "BehaviorTree/BlackboardComponent.h"
@@ -14,38 +15,52 @@ UT_ExecuteAction::UT_ExecuteAction()
 {
 	NodeName = TEXT("Execute Action");
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UT_ExecuteAction::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	if (ActionName == OwnerComp.GetBlackboardComponent()->GetValueAsName("Selected Action Name"))
+	Owner = Cast<AAnimalBase>(OwnerComp.GetAIOwner()->GetPawn());
+	if (Owner)
 	{
-		Action = Cast<UUtilityActionBase>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("Selected Action"));
-		if (Action)
+		OwningUtilityManager = Owner->GetUtilityManager();
+		if (OwningUtilityManager)
 		{
-			Action->SetTargetLocation();
+			for (auto& Action : OwningUtilityManager->AvailableActions)
+			{
+				if (Action->ActionName == OwningUtilityManager->BlackboardComp->GetValueAsName("Selected Action Name"))
+				{
+					CurrentAction = Action;
+					CurrentAction->SetTargetLocation();
+					break;
+				}
+			}
 		}
 		return EBTNodeResult::InProgress;
 	}
-	else
-	{
-		return EBTNodeResult::Failed;
-	}
+	return EBTNodeResult::Succeeded;
 }
 
 void UT_ExecuteAction::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	if (OwnerComp.GetBlackboardComponent()->GetValueAsBool("Check Interaction"))
+	if (Owner && CurrentAction)
 	{
-		OwnerComp.GetBlackboardComponent()->SetValueAsBool("Check Interaction", false);
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
-		return;
-	}
-	if (Action)
-	{
-		Action->ExecuteAction();
+		if (CurrentAction->ActionName != "Flee Action" && OwningUtilityManager->BlackboardComp->GetValueAsBool("Check Interaction"))
+		{
+			OwningUtilityManager->BlackboardComp->SetValueAsBool("Check Interaction", false);
+			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Changed Action"));
+			FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+			return;
+		}
 
-		if (Action->CompleteAction())
+		if (Owner->CheckObstacleTargetLocation())
+		{
+			FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		}
+
+		CurrentAction->ExecuteAction();
+
+		if (CurrentAction->CompleteAction())
 		{
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		}

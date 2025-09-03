@@ -8,6 +8,7 @@
 
 class UUtilityActionBase;
 class AAnimalBase;
+class UUtilityComponent;
 
 UCLASS()
 class RIVERNINE_LED_API UT_ExecuteAction : public UBTTask_BlackboardBase
@@ -22,10 +23,12 @@ public:
 	FName ActionName;
 
 	UPROPERTY(VisibleAnywhere)
-	UUtilityActionBase* Action = nullptr;
+	UUtilityActionBase* CurrentAction = nullptr;
 	
 	UPROPERTY(VisibleAnywhere)
 	AAnimalBase* Owner;
+
+	UUtilityComponent* OwningUtilityManager;
 
 	//==============================================================
 	//=                          Function                          =

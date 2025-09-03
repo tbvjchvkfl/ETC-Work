@@ -6,6 +6,7 @@
 #include "Component/UtilityComponent.h"
 #include "Character/Utility/UtilityActionBase.h"
 #include "LevelObject/HideObject.h"
+#include "LevelObject/MovementLimitVolume.h"
 
 // Engine
 #include "Components/SphereComponent.h"
@@ -65,14 +66,53 @@ FVector AAnimalBase::SetHideLocation()
 	return HideObj->GetActorLocation();
 }
 
+bool AAnimalBase::CheckObstacleTargetLocation()
+{
+	bool ReturnValue = false;
+	FHitResult Hit;
+	FVector Start = GetActorLocation();
+	FVector End = Start + GetActorForwardVector() * 100.0f;
+	FCollisionQueryParams ColParams;
+	ColParams.AddIgnoredActor(this);
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, ColParams))
+	{
+		if (Hit.bBlockingHit)
+		{
+			ReturnValue = true;
+		}
+	}
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
+	return ReturnValue;
+}
+
 void AAnimalBase::BeginPlay()
 {
 	Super::BeginPlay();
+	MovementLimitVolume = Cast<AMovementLimitVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AMovementLimitVolume::StaticClass()));
+
+	SphereCollision->OnBeginCursorOver.AddDynamic(this, &AAnimalBase::OnBeginMouseOver);
 }
 
 void AAnimalBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+void AAnimalBase::OnBeginMouseOver(UPrimitiveComponent* TouchedComponent)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("Touch"));
+	if (UtilityManager)
+	{
+		InteractionCount++;
+		for (UUtilityActionBase* Action : UtilityManager->AvailableActions)
+		{
+			if (Action->ActionName == FName(TEXT("Flee Action")))
+			{
+				UtilityManager->ForceExecuteAction(Action);
+				bIsInteraction = true;
+				break;
+			}
+		}
+	}
 }
 

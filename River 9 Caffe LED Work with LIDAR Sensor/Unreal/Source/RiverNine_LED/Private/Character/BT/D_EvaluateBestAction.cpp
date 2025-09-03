@@ -18,10 +18,13 @@ UD_EvaluateBestAction::UD_EvaluateBestAction()
 bool UD_EvaluateBestAction::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
     bool ReturnValue = false;
-    if (AAnimalBase* FishCharacter = Cast<AAnimalBase>(OwnerComp.GetAIOwner()->GetPawn()))
+    if (AAnimalController* FishController = Cast<AAnimalController>(OwnerComp.GetAIOwner()))
     {
-        FishCharacter->GetUtilityManager()->EvaluateBestAction();
-        ReturnValue = true;
+        if (AAnimalBase* FishCharacter = Cast<AAnimalBase>(FishController->GetPawn()))
+        {
+            FishCharacter->GetUtilityManager()->EvaluateBestAction();
+            ReturnValue = true;
+        }
     }
     return ReturnValue;
 }

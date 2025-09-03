@@ -27,7 +27,7 @@ public:
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	void InitMoveAction();
+	virtual void InitAction(AAnimalBase* owner) override;
 	virtual void SetTargetLocation() override;
 	virtual bool CompleteAction() override;
 	virtual float CalculateActionScore() override;
@@ -51,7 +51,7 @@ public:
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	void InitFleeAction();
+	virtual void InitAction(AAnimalBase* owner) override;
 	virtual void SetTargetLocation() override;
 	virtual bool CompleteAction() override;
 	virtual float CalculateActionScore() override;
@@ -75,7 +75,7 @@ public:
 	//==============================================================
 	//=                          Function                          =
 	//==============================================================
-	void InitHideAction();
+	virtual void InitAction(AAnimalBase* owner) override;
 	virtual void SetTargetLocation() override;
 	virtual bool CompleteAction() override;
 	virtual float CalculateActionScore() override;
